@@ -1,12 +1,12 @@
 #include <cmath>
-#include <stdexcept>
+#include "utils.h"
 
 // Static methods for clamping
 int clamp(int value, int low, int high) {
-    return std::max(low, std::min(value, high));
+    return max(low, min(value, high));
 }
 double clamp(double value, double low, double high) {
-    return std::max(low, std::min(value, high));
+    return max(low, min(value, high));
 }
 // Method for applying deadband
 double applyDeadband(double value, double deadband, double maxMagnitude) {
@@ -55,13 +55,15 @@ double inverseInterpolate(double startValue, double endValue, double q) {
 }
 bool isNear(double expected, double actual, double tolerance) {
     if (tolerance < 0) {
-        throw std::invalid_argument("Tolerance must be a non-negative number!");
+        printf("Tolerance must be a non-negative number!");
+        return false;
     }
     return abs(expected - actual) < tolerance;
 }
 bool isNear(double expected, double actual, double tolerance, double min, double max) {
     if (tolerance < 0) {
-        throw std::invalid_argument("Tolerance must be a non-negative number!");
+        printf("Tolerance must be a non-negative number!");
+        return false;
     }
     double errorBound = (max - min) / 2.0;
     double error = inputModulus(expected - actual, -errorBound, errorBound);

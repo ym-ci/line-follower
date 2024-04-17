@@ -2,7 +2,6 @@
 #define PID_CONTROLLER_H
 
 #include <cmath>
-#include <stdexcept>
 #include "MathUtil.h"
 
 class PIDController {

@@ -1,5 +1,4 @@
 #include <cmath>
-#include <stdexcept>
 #include "MathUtil.h"
 
 class PIDController {
@@ -8,6 +7,9 @@ private:
     double m_ki;
     double m_kd;
     double m_iZone = infinity();
+    // period is the time between controller updates or sothing like MSPT
+    // 0.02 is the default value for period as RoboRIO runs at 50Hz
+    // 0.02 prob needs to be way lower in my experience
     const double m_period;
     double m_maximumIntegral = 1.0;
     double m_minimumIntegral = -1.0;
@@ -28,13 +30,13 @@ private:
 public:
     PIDController(double kp, double ki, double kd) : m_kp(kp), m_ki(ki), m_kd(kd), m_period(0.02) {
         if (kp < 0.0 || ki < 0.0 || kd < 0.0) {
-            throw std::invalid_argument("Kp, Ki, and Kd must be non-negative numbers!");
+            printf("Kp, Ki, and Kd must be non-negative numbers!");
         }
     }
 
     PIDController(double kp, double ki, double kd, double period) : m_kp(kp), m_ki(ki), m_kd(kd), m_period(period) {
         if (kp < 0.0 || ki < 0.0 || kd < 0.0 || period <= 0.0) {
-            throw std::invalid_argument("Kp, Ki, Kd, and period must be non-negative numbers, and period must be positive!");
+            printf("Kp, Ki, and Kd must be non-negative numbers, and period must be a positive number!");
         }
     }
 
@@ -62,7 +64,7 @@ public:
 
     void setIZone(double iZone) {
         if (iZone < 0) {
-            throw std::invalid_argument("IZone must be a non-negative number!");
+            printf("IZone must be a non-negative number!");
         }
         m_iZone = iZone;
     }

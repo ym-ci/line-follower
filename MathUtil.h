@@ -1,5 +1,4 @@
 #include <cmath>
-#include <stdexcept>
 
 // Static methods for clamping
 int clamp(int value, int low, int high);
