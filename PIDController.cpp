@@ -1,5 +1,7 @@
 #include <cmath>
 #include "MathUtil.h"
+#include "utils.h"
+
 
 class PIDController {
 private:
@@ -30,13 +32,13 @@ private:
 public:
     PIDController(double kp, double ki, double kd) : m_kp(kp), m_ki(ki), m_kd(kd), m_period(0.02) {
         if (kp < 0.0 || ki < 0.0 || kd < 0.0) {
-            printf("Kp, Ki, and Kd must be non-negative numbers!");
+            println("Kp, Ki, and Kd must be non-negative numbers!");
         }
     }
 
     PIDController(double kp, double ki, double kd, double period) : m_kp(kp), m_ki(ki), m_kd(kd), m_period(period) {
         if (kp < 0.0 || ki < 0.0 || kd < 0.0 || period <= 0.0) {
-            printf("Kp, Ki, and Kd must be non-negative numbers, and period must be a positive number!");
+            println("Kp, Ki, and Kd must be non-negative numbers, and period must be a positive number!");
         }
     }
 
@@ -64,7 +66,7 @@ public:
 
     void setIZone(double iZone) {
         if (iZone < 0) {
-            printf("IZone must be a non-negative number!");
+            println("IZone must be a non-negative number!");
         }
         m_iZone = iZone;
     }

@@ -55,14 +55,14 @@ double inverseInterpolate(double startValue, double endValue, double q) {
 }
 bool isNear(double expected, double actual, double tolerance) {
     if (tolerance < 0) {
-        printf("Tolerance must be a non-negative number!");
+        println("Tolerance must be a non-negative number!");
         return false;
     }
     return abs(expected - actual) < tolerance;
 }
 bool isNear(double expected, double actual, double tolerance, double min, double max) {
     if (tolerance < 0) {
-        printf("Tolerance must be a non-negative number!");
+        println("Tolerance must be a non-negative number!");
         return false;
     }
     double errorBound = (max - min) / 2.0;
