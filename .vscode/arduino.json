@@ -1,5 +1,4 @@
 {
-    "port": "COM10",
     "board": "arduino:samd:nano_33_iot",
     "programmer": "atmel_ice",
     "sketch": "line-follower.ino"
