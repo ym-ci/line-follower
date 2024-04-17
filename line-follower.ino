@@ -1,3 +1,6 @@
+#include <kalmanFilter.h>
+#include <ReefwingAHRS.h>
+
 #include "utils.h"
 
 const int MS_PER_TICK = 250;

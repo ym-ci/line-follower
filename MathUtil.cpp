@@ -1,4 +1,5 @@
 #include <cmath>
+#include <Arduino.h>
 #include "utils.h"
 
 // Static methods for clamping
