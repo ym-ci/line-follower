@@ -1,7 +1,11 @@
-#include <kalmanFilter.h>
-#include <ReefwingAHRS.h>
-
 #include "utils.h"
+#include "DiffKinimatics.h"
+#include "PIDController.h"
+
+#include <cmath>
+#include "MathUtil.h"
+#include "utils.h"
+
 
 const int MS_PER_TICK = 250;
 
@@ -11,27 +15,41 @@ const int PINS = 7;
 
 int blackThreshold = 500;
 
-const int SENSOR_PINS[7] = {A0,A1,A2,A3,A4,A5,A6}; 
-void setup() {
+const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
+
+const int lPin = 2;
+const int rPin = 3;
+
+PIDController pid(0.2f, 0, 0);
+
+void setup()
+{
   Serial.begin(9600);
-  for (int i = 0; i < PINS; i++) {
+  for (int i = 0; i < PINS; i++)
+  {
     pinMode(SENSOR_PINS[i], INPUT);
   }
+
+  pinMode(lPin, OUTPUT);
+  pinMode(rPin, OUTPUT);
 }
 
-void loop() {
+void loop()
+{
   // println("Calib1:1");
   int weight = 0;
   int detections = 0;
-  for (int i = 0; i < PINS; i++) {
+  for (int i = 0; i < PINS; i++)
+  {
     // print(i);
     // print(":");
     int value = analogRead(i) - ARBRITRARY_NUMBER;
     bool black = value >= blackThreshold;
     // println(black);
 
-    int cWeight = i-3;
-    if (black) {
+    int cWeight = i - 3;
+    if (black)
+    {
       weight += cWeight;
       detections++;
     }
@@ -45,4 +63,18 @@ void loop() {
   printVar("ons", onStartEnd);
 
   delay(MS_PER_TICK);
+
+  float theta = pid.calculate(1.0f);
+  printVar("theta", theta);
+  LRPower lrPower = inverse(1.0f, theta);
+
+  float lPower = lrPower.lPower;
+  float rPower = lrPower.rPower;
+
+  printVar("lPower", lPower);
+  printVar("rPower", rPower);
+
+  analogWrite(lPin, lPower * 255);
+  analogWrite(rPin, rPower * 255);
+  println("--------------------");
 }
