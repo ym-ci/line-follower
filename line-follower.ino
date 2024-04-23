@@ -20,7 +20,8 @@ const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 const int lPin = 2;
 const int rPin = 3;
 
-PIDController pid(0.2f, 0, 0);
+// PIDController pid(0.2f, 0, 0);
+// PIDController pid = PIDController(0.2f, 0, 0);
 
 void setup()
 {
@@ -74,7 +75,7 @@ void loop()
   printVar("lPower", lPower);
   printVar("rPower", rPower);
 
-  analogWrite(lPin, lPower * 255);
-  analogWrite(rPin, rPower * 255);
+  analogWrite(lPin, lPower * 0);
+  analogWrite(rPin, rPower * 0);
   println("--------------------");
 }

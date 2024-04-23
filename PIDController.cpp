@@ -2,9 +2,8 @@
 #include "MathUtil.h"
 #include "utils.h"
 
-class PIDController
-{
-private:
+/*
+
     float m_kp;
     float m_ki;
     float m_kd;
@@ -27,9 +26,30 @@ private:
     float m_setpoint;
     float m_measurement;
     bool m_haveMeasurement = false;
-    bool m_haveSetpoint = false;
+    bool m_haveSetpoint = false;*/
 
-public:
+struct PIDController
+{
+    float m_kp;
+    float m_ki;
+    float m_kd;
+    float m_iZone = infinity();
+    const float m_period;
+    float m_maximumIntegral = 1.0;
+    float m_minimumIntegral = -1.0;
+    float m_maximumInput;
+    float m_minimumInput;
+    bool m_continuous;
+    float m_positionError;
+    float m_velocityError;
+    float m_prevError;
+    float m_totalError;
+    float m_positionTolerance = 0.05;
+    float m_velocityTolerance = infinity();
+    float m_setpoint;
+    float m_measurement;
+    bool m_haveMeasurement = false;
+    bool m_haveSetpoint = false;
     PIDController(float kp, float ki, float kd) : m_kp(kp), m_ki(ki), m_kd(kd), m_period(0.02)
     {
         if (kp < 0.0 || ki < 0.0 || kd < 0.0)
