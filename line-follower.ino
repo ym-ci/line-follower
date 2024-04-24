@@ -6,7 +6,6 @@
 #include "MathUtil.h"
 #include "utils.h"
 
-
 const int MS_PER_TICK = 250;
 
 const int SAMPLES_PER_READING = 5;

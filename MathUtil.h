@@ -1,3 +1,6 @@
+#ifndef MATHUTIL_H
+#define MATHUTIL_H
+
 #include <cmath>
 
 // Static methods for clamping
@@ -17,3 +20,5 @@ double interpolate(double startValue, double endValue, double t);
 double inverseInterpolate(double startValue, double endValue, double q);
 bool isNear(double expected, double actual, double tolerance);
 bool isNear(double expected, double actual, double tolerance, double min, double max);
+
+#endif // MATHUTIL_H
