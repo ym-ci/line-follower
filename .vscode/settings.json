@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        ".env*": "dotenv",
         "*.ejs": "html",
         "array": "cpp",
         "atomic": "cpp",
@@ -39,6 +40,7 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "random": "cpp"
     }
 }
