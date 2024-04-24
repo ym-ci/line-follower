@@ -7,10 +7,10 @@ private:
     float m_kp;
     float m_ki;
     float m_kd;
-    float m_iZone;
+    float m_iZone = infinity();
     const float m_period;
-    float m_maximumIntegral;
-    float m_minimumIntegral;
+    float m_maximumIntegral = 1.0;
+    float m_minimumIntegral = -1.0;
     float m_maximumInput;
     float m_minimumInput;
     bool m_continuous;
@@ -18,12 +18,12 @@ private:
     float m_velocityError;
     float m_prevError;
     float m_totalError;
-    float m_positionTolerance;
-    float m_velocityTolerance;
+    float m_positionTolerance = 0.05;
+    float m_velocityTolerance = infinity();
     float m_setpoint;
     float m_measurement;
-    bool m_haveMeasurement;
-    bool m_haveSetpoint;
+    bool m_haveMeasurement = false;
+    bool m_haveSetpoint = false;
 
 public:
     PIDController(float kp, float ki, float kd);
