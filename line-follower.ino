@@ -6,25 +6,30 @@
 #include "MathUtil.h"
 #include "utils.h"
 
-const int MS_PER_TICK = 250;
+const int MS_PER_TICK = 1;
 
 const int SAMPLES_PER_READING = 5;
 const int ARBRITRARY_NUMBER = 100;
 const int PINS = 7;
 
+const int pwmSpeed = 255;
+
 int blackThreshold = 500;
 
 const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 
+const int SENSOR_WEIGHTS[7] = {-12, -8, -1, 0, 1, 8, 12};
+
 const int lPin = 2;
 const int rPin = 3;
 
-// PIDController pid(0.2f, 0, 0);
-// PIDController pid = PIDController(0.2f, 0, 0);
+int previousDetection = 0;
+
+PIDController pid(0.15, 0.1, 0.01, MS_PER_TICK / 1000.0f);
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(57600);
   for (int i = 0; i < PINS; i++)
   {
     pinMode(SENSOR_PINS[i], INPUT);
@@ -47,34 +52,40 @@ void loop()
     bool black = value >= blackThreshold;
     // println(black);
 
-    int cWeight = i - 3;
+    // int cWeight = i - 3;
+    int cWeight = SENSOR_WEIGHTS[i];
     if (black)
     {
       weight += cWeight;
       detections++;
     }
   }
-  float lr = detections == 0 ? 0 : weight / detections;
+  float lr = detections == 0 ? previousDetection : weight / detections;
+  if (detections != 0)
+  {
+    previousDetection = lr;
+  }
   printVar("d", detections);
   printVar("w", weight);
   printVar("LR", lr);
 
   bool onStartEnd = detections == PINS;
-  printVar("ons", onStartEnd);
+  // printVar("ons", onStartEnd);
 
-  delay(MS_PER_TICK);
-
-  float theta = pid.calculate(1.0f);
+  float theta = pid.calculate(-lr);
   printVar("theta", theta);
-  LRPower lrPower = inverse(1.0f, theta);
 
-  float lPower = lrPower.lPower;
-  float rPower = lrPower.rPower;
+  float throttle = 1.0f;
+
+  float lPower = clamp(throttle - theta, -1.0f, 1.0f);
+  float rPower = clamp(throttle + theta, -1.0f, 1.0f);
 
   printVar("lPower", lPower);
   printVar("rPower", rPower);
 
-  analogWrite(lPin, lPower * 0);
-  analogWrite(rPin, rPower * 0);
+  analogWrite(lPin, lPower * pwmSpeed);
+  analogWrite(rPin, rPower * pwmSpeed);
   println("--------------------");
+
+  delay(MS_PER_TICK);
 }

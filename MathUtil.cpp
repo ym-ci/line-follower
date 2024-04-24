@@ -9,6 +9,9 @@ int clamp(int value, int low, int high) {
 double clamp(double value, double low, double high) {
     return max(low, min(value, high));
 }
+float clamp(float value, float low, float high) {
+    return max(low, min(value, high));
+}
 // Method for applying deadband
 double applyDeadband(double value, double deadband, double maxMagnitude) {
     if (abs(value) > deadband) {

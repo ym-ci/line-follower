@@ -6,6 +6,7 @@
 // Static methods for clamping
 int clamp(int value, int low, int high);
 double clamp(double value, double low, double high);
+float clamp(float value, float low, float high);
 
 // Method for applying deadband
 double applyDeadband(double value, double deadband, double maxMagnitude);
