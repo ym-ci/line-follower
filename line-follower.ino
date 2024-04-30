@@ -18,12 +18,17 @@ const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 
 const int lPin = 2;
 const int rPin = 3;
+const int trigPin = 9; // TRIG pin
+const int echoPin = 8; // ECHO pin
+
+float duration_us, distance_cm;
 
 // PIDController pid(0.2f, 0, 0);
-// PIDController pid = PIDController(0.2f, 0, 0);
+PIDController pid = PIDController(0.2f, 0, 0);
 
 void setup()
 {
+  // begin serial port
   Serial.begin(9600);
   for (int i = 0; i < PINS; i++)
   {
@@ -32,6 +37,9 @@ void setup()
 
   pinMode(lPin, OUTPUT);
   pinMode(rPin, OUTPUT);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 }
 
 void loop()
@@ -76,5 +84,24 @@ void loop()
 
   analogWrite(lPin, lPower * 0);
   analogWrite(rPin, rPower * 0);
+  println("--------------------");
+  // generate 10-microsecond pulse to TRIG pin
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // measure duration of pulse from ECHO pin
+  duration_us = pulseIn(echoPin, HIGH);
+
+  // calculate the distance
+  distance_cm = 0.017 * duration_us;
+
+  // print the value to Serial Monitor
+  Serial.print("distance: ");
+  Serial.print(distance_cm);
+  Serial.println(" cm");
+
+  // TODO: fix delay
+  // delay(500);
   println("--------------------");
 }
