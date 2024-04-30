@@ -18,8 +18,8 @@ const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 
 const int lPin = 2;
 const int rPin = 3;
-const int trigPin = 9; // TRIG pin
-const int echoPin = 8; // ECHO pin
+const int trigPin = 9; // TRIG pin (ultrasound)
+const int echoPin = 8; // ECHO pin (ultrasound)
 
 float duration_us, distance_cm;
 
@@ -85,6 +85,8 @@ void loop()
   analogWrite(lPin, lPower * 0);
   analogWrite(rPin, rPower * 0);
   println("--------------------");
+
+  // ultrasound stuff start
   // generate 10-microsecond pulse to TRIG pin
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
