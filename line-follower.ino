@@ -83,12 +83,12 @@ void loop()
       detections++;
     }
   }
-  float throttle = 1.5; // detections == 0 ? 0 : 1.0f;
+  float throttle = 1; // detections == 0 ? 0 : 1.0f;
   float lr = detections == 0 ? previousDetection : weight / detections;
   if (detections != 0)
   {
     previousDetection = lr;
-    throttle = 0.5;
+    throttle = 0.25f;
   }
   printVar("d", detections);
   printVar("w", weight);
