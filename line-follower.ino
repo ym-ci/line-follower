@@ -3,6 +3,7 @@
 #include "PIDController.h"
 
 #include <cmath>
+#include <Servo.h>
 #include "MathUtil.h"
 #include "utils.h"
 
@@ -25,11 +26,30 @@ const int rPin = 3;
 
 int previousDetection = 0;
 
-PIDController pid(0.15, 0.1, 0.01, MS_PER_TICK / 1000.0f);
+PIDController pid(0.1, 0.1, 0.01, MS_PER_TICK / 1000.0f);
+
+Servo lServo;
+Servo rServo;
+
+void RobotForward(int lServoSpeed, int rServoSpeed){
+
+  println("RobotForward");
+
+  printVar("lServoSpeed", lServoSpeed);
+  printVar("rServoSpeed", rServoSpeed);
+
+  // Update LEFT Motor PWM Control Inputs to "Forward" state at the requested speed
+  lServo.write(90-lServoSpeed);
+  // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
+  rServo.write(90-rServoSpeed);
+
+  
+  
+}
 
 void setup()
 {
-  Serial.begin(57600);
+  Serial.begin(9600);
   for (int i = 0; i < PINS; i++)
   {
     pinMode(SENSOR_PINS[i], INPUT);
@@ -37,6 +57,9 @@ void setup()
 
   pinMode(lPin, OUTPUT);
   pinMode(rPin, OUTPUT);
+
+  lServo.attach(lPin);
+  rServo.attach(rPin);
 }
 
 void loop()
@@ -60,10 +83,12 @@ void loop()
       detections++;
     }
   }
+  float throttle = 1.5; // detections == 0 ? 0 : 1.0f;
   float lr = detections == 0 ? previousDetection : weight / detections;
   if (detections != 0)
   {
     previousDetection = lr;
+    throttle = 0.5;
   }
   printVar("d", detections);
   printVar("w", weight);
@@ -72,19 +97,14 @@ void loop()
   bool onStartEnd = detections == PINS;
   // printVar("ons", onStartEnd);
 
-  float theta = pid.calculate(-lr);
+  float theta = pid.calculate(lr);
   printVar("theta", theta);
-
-  float throttle = 1.0f;
 
   float lPower = clamp(throttle - theta, -1.0f, 1.0f);
   float rPower = clamp(throttle + theta, -1.0f, 1.0f);
 
-  printVar("lPower", lPower);
-  printVar("rPower", rPower);
-
-  analogWrite(lPin, lPower * pwmSpeed);
-  analogWrite(rPin, rPower * pwmSpeed);
+  RobotForward(lPower * 90, rPower * 90);
+  
   println("--------------------");
 
   delay(MS_PER_TICK);
