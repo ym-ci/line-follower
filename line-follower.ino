@@ -26,7 +26,7 @@ const int rPin = 3;
 
 int previousDetection = 0;
 
-PIDController pid(0.1, 0.1, 0.01, MS_PER_TICK / 1000.0f);
+PIDController pid(0.08, 0.1, 0.03, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
