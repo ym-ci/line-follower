@@ -26,7 +26,7 @@ const int rPin = 3;
 
 int previousDetection = 0;
 
-PIDController pid(0.08, 0.1, 0.03, MS_PER_TICK / 1000.0f);
+PIDController pid(0.07, 0, 0.03, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
@@ -83,12 +83,13 @@ void loop()
       detections++;
     }
   }
-  float throttle = 1; // detections == 0 ? 0 : 1.0f;
-  float lr = detections == 0 ? previousDetection : weight / detections;
+  float throttle = 0; // detections == 0 ? 0 : 1.0f;
+  float lr = detections == 0 ? previousDetection*10 : weight / detections;
   if (detections != 0)
   {
     previousDetection = lr;
-    throttle = 0.25f;
+    //throttle ramp 0 slowly to avoid jerking
+    throttle = 1.5;
   }
   printVar("d", detections);
   printVar("w", weight);
