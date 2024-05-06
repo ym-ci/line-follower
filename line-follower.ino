@@ -15,16 +15,22 @@ const int PINS = 7;
 
 const int pwmSpeed = 255;
 
-int blackThreshold = 575;
-
 const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 
 const int SENSOR_WEIGHTS[7] = {-12, -8, -1, 0, 1, 8, 12};
 
-const int lPin = 2;
-const int rPin = 3;
+int sensorThresholds[7] = {0, 0, 0, 0, 0, 0, 0};
+
+const int L_PIN = 2;
+const int R_PIN = 3;
+
+const int BTN_PIN = 4;
 
 int previousDetection = 0;
+
+int noDetectionsCycles = 0;
+
+bool run = false;
 
 PIDController pid(0.07, 0, 0.03, MS_PER_TICK / 1000.0f);
 
@@ -42,9 +48,26 @@ void RobotForward(int lServoSpeed, int rServoSpeed){
   lServo.write(90-lServoSpeed);
   // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
   rServo.write(90-rServoSpeed);
+}
 
-  
-  
+void calibrate(){
+  delay(2000);
+  println("Calibrating");
+
+  bool state = false;
+  for (int i = 0; i < PINS; i++)
+  {
+    int value = 0;
+    for (int j = 0; j < SAMPLES_PER_READING; j++)
+    {
+      state = !state;
+      digitalWrite(LED_BUILTIN, state);
+      value += analogRead(i);
+    }
+    sensorThresholds[i] = (value / SAMPLES_PER_READING) - ARBRITRARY_NUMBER;
+  }
+  digitalWrite(LED_BUILTIN, LOW);
+  println("Calibrated");
 }
 
 void setup()
@@ -55,27 +78,35 @@ void setup()
     pinMode(SENSOR_PINS[i], INPUT);
   }
 
-  pinMode(lPin, OUTPUT);
-  pinMode(rPin, OUTPUT);
+  pinMode(L_PIN, OUTPUT);
+  pinMode(R_PIN, OUTPUT);
 
-  lServo.attach(lPin);
-  rServo.attach(rPin);
+  pinMode(BTN_PIN, INPUT_PULLDOWN);
+
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  lServo.attach(L_PIN);
+  rServo.attach(R_PIN);
+
+  calibrate();
 }
 
 void loop()
 {
-  // println("Calib1:1");
+  if (!run){
+    //println("Waiting for button press");
+    if (digitalRead(BTN_PIN) == HIGH){
+      run = true;
+    }
+    return;
+  }
   int weight = 0;
   int detections = 0;
   for (int i = 0; i < PINS; i++)
   {
-    // print(i);
-    // print(":");
-    int value = analogRead(i) - ARBRITRARY_NUMBER;
+    int blackThreshold = sensorThresholds[i];
+    int value = analogRead(i);
     bool black = value >= blackThreshold;
-    // println(black);
-
-    // int cWeight = i - 3;
     int cWeight = SENSOR_WEIGHTS[i];
     if (black)
     {
@@ -83,20 +114,31 @@ void loop()
       detections++;
     }
   }
-  float throttle = 0; // detections == 0 ? 0 : 1.0f;
+  float throttle = 0.5; // detections == 0 ? 0 : 1.0f;
   float lr = detections == 0 ? previousDetection*10 : weight / detections;
   if (detections != 0)
   {
+    noDetectionsCycles = 0;
     previousDetection = lr;
     //throttle ramp 0 slowly to avoid jerking
     throttle = 1.5;
+  } else {
+    noDetectionsCycles += 1;
+    if (noDetectionsCycles > 100) {
+      // lr = 15;
+      throttle = 0; 
+    }
   }
   printVar("d", detections);
   printVar("w", weight);
   printVar("LR", lr);
 
   bool onStartEnd = detections == PINS;
-  // printVar("ons", onStartEnd);
+  if (onStartEnd) {
+    throttle = 1;
+    lr = 0;
+  }
+  printVar("ons", onStartEnd);
 
   float theta = pid.calculate(lr);
   printVar("theta", theta);
