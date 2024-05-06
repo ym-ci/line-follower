@@ -15,7 +15,7 @@ const int PINS = 7;
 
 const int pwmSpeed = 255;
 
-int blackThreshold = 500;
+int blackThreshold = 575;
 
 const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
 
