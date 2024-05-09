@@ -35,8 +35,10 @@ int noDetectionsCycles = 0;
 
 bool run = false;
 
-const long AIO_UPDATE_INTERVAL = 3000;
+const long AIO_UPDATE_INTERVAL = 5000;
+const long AIO_POLL_INTERVAL = 200;
 unsigned long aioLastUpdate = 0;
+unsigned long aioPollLastUpdate = 0;
 
 PIDController pid(0.07, 0, 0.03, MS_PER_TICK / 1000.0f);
 
@@ -75,6 +77,7 @@ void calibrate() {
 }
 
 void setup() {
+  delay(2000);
   Serial.begin(9600);
   for (int i = 0; i < PINS; i++) {
     pinMode(SENSOR_PINS[i], INPUT);
@@ -96,13 +99,19 @@ void setup() {
 }
 
 void loop() {
-  mqttcTasks();
   unsigned long ms = millis();
+  println(ms);
   if (ms - aioLastUpdate >= AIO_UPDATE_INTERVAL) {
     aioLastUpdate = ms;
+    println("Updating AIO");
     mqttcTx(PUB_AIO_MONITOR_FEEDS_JSON, serializeDetails());
   }
-  if (mqttcRxIsAvailable(SUB_FEEDS)) {
+  if (ms - aioPollLastUpdate >= AIO_POLL_INTERVAL) {
+    println("Polling MQTT");
+    aioPollLastUpdate = ms;
+    mqttcTasks();
+  }
+  if (mqttcRxIsAvailable((String)SUB_FEEDS)) {
     processRx();
   }
   if (!run) {
@@ -178,6 +187,7 @@ void processRx(void) {
   String payload = mqttcRx();
   StaticJsonDocument<32> doc;
   DeserializationError error = deserializeJson(doc, payload);
+  println("mqttRX");
   // {"feeds":{"runstate":"ON"}}
   if (error) {
     println("Failed to parse received JSON");

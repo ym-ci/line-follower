@@ -20,7 +20,7 @@
 
 // Publish & Subscribe topics
 #define PUB_TOPIC_AIO_MONITOR_FEEDS   "YMRobotics/groups/cetaiotrobot71582" // (EDIT) Adafruit Feed Topic ID
-#define SUB_FEEDS   "YMRobotics/feeds/cetaiotrobot71582" // (EDIT) Adafruit Feed Topic ID
+#define SUB_FEEDS   "YMRobotics/groups/cetaiotrobot71582" // (EDIT) Adafruit Feed Topic ID
 
 #define PUB_AIO_MONITOR_FEEDS_JSON    "YMRobotics/groups/cetaiotrobot71582/json"
 

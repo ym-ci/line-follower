@@ -18,6 +18,8 @@
 #include <WiFiNINA.h>           // Required for WiFi and TCP apis
 #include "mqttc.h"              // mqttc APIs
 
+#include "utils.h"
+
 /*** Symbolic Constants used in this module ***********************************/
 #define MQTTC_STAT_LED_PIN LED_BUILTIN // 13     // DIGITAL OUTPUT - connected to NANO 33 IoT on-board LED
                                   // Indicates netDebug connection status
@@ -31,8 +33,8 @@
 /*** Global Variable Declarations *********************************************/
 
 // WiFi Parameters
-const char ssid[] = "Cisco04500";              // (EDIT) SSID of desired Access Point
-const char pass[] = "satec123";        // (EDIT) Required Passphrase (WPA2/Personal)
+const char ssid[] = "Evan_S21";              // (EDIT) SSID of desired Access Point
+const char pass[] = "qgrj3146";        // (EDIT) Required Passphrase (WPA2/Personal)
 
 // TCP Client Connection Parameters 
 const char broker[] = "io.adafruit.com";    // server IP address or hostname
@@ -114,10 +116,11 @@ void mqttcInitialize(void){
 }
 
 void mqttcTasks(void){
-
+    println("running tasks");
     connectionTasks();              // monitor WiFi & TCP connection and reconnect if required
     mqttClient.poll();              // call poll() regularly to allow the library to receive MQTT messages and
                                     // send MQTT keep alives which avoids being disconnected by the broker
+    println("tasks done");
 }
 
 void mqttcTx(String outTopic, String jsonOutPayload){
@@ -197,7 +200,7 @@ void connectionTasks(void){
     if ((connStatusCurrentSampleTime - connStatusPrevSampleTime) >= connStatusSampleInterval) {
         connStatusPrevSampleTime = connStatusCurrentSampleTime;
         if(WiFi.status() == WL_CONNECTED){
-        Serial.println("WiFi Status: connected");
+        // Serial.println("WiFi Status: connected");
         if(!mqttClient.connected()){
             digitalWrite(MQTTC_STAT_LED_PIN, 0);       // turn off CONNECT status LED
             mqttClient.flush();
@@ -217,7 +220,7 @@ void connectionTasks(void){
             digitalWrite(MQTTC_STAT_LED_PIN, 1);       // turn on CONNECT status LED
         }
         else{
-            Serial.println("TCP Status: connected");
+            // Serial.println("TCP Status: connected");
         }
     }
     else{
