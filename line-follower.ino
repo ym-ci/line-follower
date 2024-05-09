@@ -13,7 +13,7 @@
 const int MS_PER_TICK = 1;
 
 const int SAMPLES_PER_READING = 5;
-const int ARBRITRARY_NUMBER = 100;
+const int ARBRITRARY_NUMBER = 50;
 const int PINS = 7;
 
 const int pwmSpeed = 255;
