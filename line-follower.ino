@@ -42,11 +42,6 @@ const long AIO_POLL_INTERVAL = 200;
 unsigned long aioLastUpdate = 0;
 unsigned long aioPollLastUpdate = 0;
 
-const long AIO_UPDATE_INTERVAL = 5000;
-const long AIO_POLL_INTERVAL = 200;
-unsigned long aioLastUpdate = 0;
-unsigned long aioPollLastUpdate = 0;
-
 PIDController pid(0.03, 0, 0.03, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
