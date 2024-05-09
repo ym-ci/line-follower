@@ -33,6 +33,8 @@ int previousDetection = 0;
 
 int noDetectionsCycles = 0;
 
+int loopCount = 0;
+
 bool run = false;
 
 const long AIO_UPDATE_INTERVAL = 5000;
@@ -40,7 +42,12 @@ const long AIO_POLL_INTERVAL = 200;
 unsigned long aioLastUpdate = 0;
 unsigned long aioPollLastUpdate = 0;
 
-PIDController pid(0.07, 0, 0.03, MS_PER_TICK / 1000.0f);
+const long AIO_UPDATE_INTERVAL = 5000;
+const long AIO_POLL_INTERVAL = 200;
+unsigned long aioLastUpdate = 0;
+unsigned long aioPollLastUpdate = 0;
+
+PIDController pid(0.03, 0, 0.03, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
@@ -133,9 +140,10 @@ void loop() {
       detections++;
     }
   }
-  float throttle = 0.5;  // detections == 0 ? 0 : 1.0f;
-  float lr = detections == 0 ? previousDetection * 10 : weight / detections;
-  if (detections != 0) {
+  float throttle = 0.3; // detections == 0 ? 0 : 1.0f;
+  float lr = detections == 0 ? previousDetection*10 : weight / detections;
+  if (detections != 0)
+  {
     noDetectionsCycles = 0;
     previousDetection = lr;
     // throttle ramp 0 slowly to avoid jerking
@@ -152,14 +160,16 @@ void loop() {
   printVar("LR", lr);
 
   bool onStartEnd = detections == PINS;
-  if (onStartEnd) {
+  if (onStartEnd || loopCount < 100) {
     throttle = 1;
     lr = 0;
+    loopCount++;
   }
   printVar("ons", onStartEnd);
 
   float theta = pid.calculate(lr);
   printVar("theta", theta);
+
 
   float lPower = clamp(throttle - theta, -1.0f, 1.0f);
   float rPower = clamp(throttle + theta, -1.0f, 1.0f);
