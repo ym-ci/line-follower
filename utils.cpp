@@ -10,6 +10,11 @@ void printVar(const char* name, float value) {
     Serial.print(":");
     Serial.println(value);
 }
+void printVar(const char* name, const char* value) {
+    Serial.print(name);
+    Serial.print(":");
+    Serial.println(value);
+}
 void println(int i) {
     Serial.println(i);
 }

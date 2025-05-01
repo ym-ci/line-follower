@@ -1,5 +1,3 @@
-#include <AdafruitIO.h>
-
 #include "utils.h"
 #include "DiffKinimatics.h"
 #include "PIDController.h"
@@ -18,11 +16,11 @@ const int PINS = 7;
 
 const int pwmSpeed = 255;
 
-const int SENSOR_PINS[7] = {A0, A1, A2, A3, A4, A5, A6};
+const int SENSOR_PINS[7] = {A1, A2, A3, A4, A5, A6};
 
-const int SENSOR_WEIGHTS[7] = {-12, -8, -1, 0, 1, 8, 12};
+const int SENSOR_WEIGHTS[7] = {-12, -8, -1, 1, 8, 12};
 
-int sensorThresholds[7] = {0, 0, 0, 0, 0, 0, 0};
+int sensorThresholds[7] = {0, 0, 0, 0, 0, 0};
 
 const int L_PIN = 2;
 const int R_PIN = 3;
@@ -44,15 +42,15 @@ Servo rServo;
 
 void RobotForward(int lServoSpeed, int rServoSpeed){
 
-  println("RobotForward");
+  // println("RobotForward");
 
   printVar("lServoSpeed", lServoSpeed);
   printVar("rServoSpeed", rServoSpeed);
 
-  // Update LEFT Motor PWM Control Inputs to "Forward" state at the requested speed
-  lServo.write(90-lServoSpeed);
-  // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
-  rServo.write(90-rServoSpeed);
+  // // Update LEFT Motor PWM Control Inputs to "Forward" state at the requested speed
+  // lServo.write(90-lServoSpeed);
+  // // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
+  // rServo.write(90-rServoSpeed);
 }
 
 void calibrate(){
@@ -107,18 +105,36 @@ void loop()
   }
   int weight = 0;
   int detections = 0;
+  // Initialize a character array to hold the sensor status string
+  char sensorStatus[PINS + 1]; // +1 for the null terminator
+
   for (int i = 0; i < PINS; i++)
   {
     int blackThreshold = sensorThresholds[i];
-    int value = analogRead(i);
+    // Read from the correct sensor pin
+    int value = analogRead(SENSOR_PINS[i]);
+    // Determine if the sensor sees black based on the threshold
     bool black = value >= blackThreshold;
     int cWeight = SENSOR_WEIGHTS[i];
+
     if (black)
     {
+      // If black, add the weight, increment detections, and mark '#'
       weight += cWeight;
       detections++;
+      sensorStatus[i] = '#';
+    }
+    else
+    {
+      // If white, mark '_'
+      sensorStatus[i] = '_';
     }
   }
+  // Null-terminate the character array to make it a valid C-string
+  sensorStatus[PINS] = '\0';
+
+  // Print the sensor status string (assuming printVar can handle char*)
+  printVar("Sensors", sensorStatus);
   float throttle = 0.3; // detections == 0 ? 0 : 1.0f;
   float lr = detections == 0 ? previousDetection*10 : weight / detections;
   if (detections != 0)
