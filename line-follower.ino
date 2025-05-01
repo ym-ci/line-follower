@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "DiffKinimatics.h"
 #include "PIDController.h"
+#include "sensor.h"
 
 #include <cmath>
 #include <Servo.h>
@@ -12,15 +13,15 @@ const int MS_PER_TICK = 1;
 
 const int SAMPLES_PER_READING = 5;
 const int ARBRITRARY_NUMBER = 50;
-const int PINS = 7;
+const int PINS = 6; // Changed from 7 to 6 to match the actual number of sensors used
 
 const int pwmSpeed = 255;
 
-const int SENSOR_PINS[7] = {A1, A2, A3, A4, A5, A6};
+const int SENSOR_PINS[PINS] = {A1, A2, A3, A4, A5, A6}; // Updated array size to match PINS
 
-const int SENSOR_WEIGHTS[7] = {-12, -8, -1, 1, 8, 12};
+const int SENSOR_WEIGHTS[PINS] = {-12, -8, -1, 1, 8, 12}; // Updated array size to match PINS
 
-int sensorThresholds[7] = {0, 0, 0, 0, 0, 0};
+int sensorThresholds[PINS] = {0, 0, 0, 0, 0, 0}; // Updated array size to match PINS
 
 const int L_PIN = 2;
 const int R_PIN = 3;
@@ -39,6 +40,9 @@ PIDController pid(0.03, 0, 0.03, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
+
+// Update global variables to use Sensor objects
+Sensor sensors[PINS] = {Sensor(A1), Sensor(A2), Sensor(A3), Sensor(A4), Sensor(A5), Sensor(A6)};
 
 void RobotForward(int lServoSpeed, int rServoSpeed){
 
@@ -60,14 +64,9 @@ void calibrate(){
   bool state = false;
   for (int i = 0; i < PINS; i++)
   {
-    int value = 0;
-    for (int j = 0; j < SAMPLES_PER_READING; j++)
-    {
-      state = !state;
-      digitalWrite(LED_BUILTIN, state);
-      value += analogRead(i);
-    }
-    sensorThresholds[i] = (value / SAMPLES_PER_READING) - ARBRITRARY_NUMBER;
+    state = !state;
+    digitalWrite(LED_BUILTIN, state);
+    sensors[i].calibrate(SAMPLES_PER_READING, ARBRITRARY_NUMBER);
   }
   digitalWrite(LED_BUILTIN, LOW);
   println("Calibrated");
@@ -110,11 +109,9 @@ void loop()
 
   for (int i = 0; i < PINS; i++)
   {
-    int blackThreshold = sensorThresholds[i];
-    // Read from the correct sensor pin
-    int value = analogRead(SENSOR_PINS[i]);
+    int blackThreshold = sensors[i].getThreshold();
     // Determine if the sensor sees black based on the threshold
-    bool black = value >= blackThreshold;
+    bool black = sensors[i].isBlack();
     int cWeight = SENSOR_WEIGHTS[i];
 
     if (black)

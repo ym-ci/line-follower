@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "utils.h"
 
 void printVar(const char* name, int value) {
     Serial.print(name);
