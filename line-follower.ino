@@ -36,7 +36,7 @@ int loopCount = 0;
 
 bool run = false;
 
-PIDController pid(0.03, 0, 0.03, MS_PER_TICK / 1000.0f);
+PIDController pid(0.005, 0, 0, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
@@ -51,10 +51,10 @@ void RobotForward(int lServoSpeed, int rServoSpeed){
   printVar("lServoSpeed", lServoSpeed);
   printVar("rServoSpeed", rServoSpeed);
 
-  // // Update LEFT Motor PWM Control Inputs to "Forward" state at the requested speed
-  // lServo.write(90-lServoSpeed);
-  // // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
-  // rServo.write(90-rServoSpeed);
+  // Update LEFT Motor PWM Control Inputs to "Forward" state at the requested speed
+  lServo.write(90-lServoSpeed);
+  // Update RIGHT Motor PWM Control Inputs to "Forward" state at the requested speed
+  rServo.write(90-rServoSpeed);
 }
 
 void calibrate(){
@@ -90,7 +90,52 @@ void setup()
   lServo.attach(L_PIN);
   rServo.attach(R_PIN);
 
-  calibrate();
+  while (digitalRead(BTN_PIN) == LOW){
+    println("Waiting for button press");
+    delay(100);
+  }
+
+  for (int i = 0; i < PINS; i++)
+  {
+    // Use array elements directly instead of local copies
+    sensors[i].calibrateWhite(SAMPLES_PER_READING);
+    // Use separate Serial.print statements instead of string concatenation
+    Serial.print("Calibrated white sensor ");
+    Serial.print(i);
+    Serial.print(" to ");
+    Serial.println(sensors[i].getWhiteValue());
+    delay(100);
+  }
+
+  // wait for button to be released
+  while (digitalRead(BTN_PIN) == HIGH){
+    println("Waiting for button release");
+    delay(100);
+  }
+
+  // wait for button to be pressed again
+  while (digitalRead(BTN_PIN) == LOW){
+    println("Waiting for button press");
+    delay(100);
+  }
+  
+  for (int i = 0; i < PINS; i++)
+  {
+    // Use array elements directly instead of local copies
+    sensors[i].calibrateBlack(SAMPLES_PER_READING);
+    // Use separate Serial.print statements instead of string concatenation
+    Serial.print("Calibrated black sensor ");
+    Serial.print(i);
+    Serial.print(" to ");
+    Serial.println(sensors[i].getBlackValue());
+    delay(100);
+  }
+  
+  // wait for button to be released
+  while (digitalRead(BTN_PIN) == HIGH){
+    println("Waiting for button release");
+    delay(100);
+  }
 }
 
 void loop()
@@ -163,10 +208,10 @@ void loop()
   printVar("theta", theta);
 
 
-  float lPower = clamp(throttle - theta, -1.0f, 1.0f);
-  float rPower = clamp(throttle + theta, -1.0f, 1.0f);
+  float lPower = clamp(throttle + theta, -1.0f, 1.0f);
+  float rPower = clamp(throttle - theta, -1.0f, 1.0f);
 
-  RobotForward(lPower * 90, rPower * 90);
+  RobotForward(lPower * 40, rPower * 40);
   
   println("--------------------");
 
