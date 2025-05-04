@@ -2,6 +2,7 @@
 #include "DiffKinimatics.h"
 #include "PIDController.h"
 #include "sensor.h"
+#include "LEDSystem.h"
 
 #include <cmath>
 #include <Servo.h>
@@ -40,6 +41,9 @@ PIDController pid(0.005, 0, 0, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
+
+// Create LED system for the onboard LED
+LEDSystem ledSystem;
 
 // Update global variables to use Sensor objects
 Sensor sensors[PINS] = {Sensor(A1), Sensor(A2), Sensor(A3), Sensor(A4), Sensor(A5), Sensor(A6)};
@@ -90,11 +94,18 @@ void setup()
   lServo.attach(L_PIN);
   rServo.attach(R_PIN);
 
+  // Set LED animation to pulse while waiting for calibration
+  ledSystem.setPulse(1000);
+
   while (digitalRead(BTN_PIN) == LOW){
     println("Waiting for button press");
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
 
+  // Switch LED animation to blink during calibration
+  ledSystem.setBlink(200);
+  
   for (int i = 0; i < PINS; i++)
   {
     // Use array elements directly instead of local copies
@@ -104,20 +115,29 @@ void setup()
     Serial.print(i);
     Serial.print(" to ");
     Serial.println(sensors[i].getWhiteValue());
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
 
   // wait for button to be released
   while (digitalRead(BTN_PIN) == HIGH){
     println("Waiting for button release");
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
+
+  // Set LED animation to alternate while waiting for button press
+  ledSystem.setAlternate(300);
 
   // wait for button to be pressed again
   while (digitalRead(BTN_PIN) == LOW){
     println("Waiting for button press");
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
+  
+  // Switch LED animation back to blink during second calibration
+  ledSystem.setBlink(200);
   
   for (int i = 0; i < PINS; i++)
   {
@@ -128,23 +148,34 @@ void setup()
     Serial.print(i);
     Serial.print(" to ");
     Serial.println(sensors[i].getBlackValue());
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
   
   // wait for button to be released
   while (digitalRead(BTN_PIN) == HIGH){
     println("Waiting for button release");
+    ledSystem.update(); // Update LED animation
     delay(100);
   }
+  
+  // Set LED animation to pulse when calibration is complete and waiting to start
+  ledSystem.setPulse(2000);
 }
 
 void loop()
 {
+  // Update LED animations
+  ledSystem.update();
+  
   if (!run){
     //println("Waiting for button press");
     if (digitalRead(BTN_PIN) == HIGH){
       run = true;
+      // Set LED animation to blink slowly when robot starts running
+      ledSystem.setBlink(500);
     }
+    delay(MS_PER_TICK);
     return;
   }
   int weight = 0;
@@ -201,7 +232,27 @@ void loop()
     throttle = 1;
     lr = 0;
     loopCount++;
+    
+    // When on start/end line, use LED on
+    if (onStartEnd) {
+      ledSystem.setOn();
+    }
   }
+  
+  // Update LED based on the robot's state
+  if (detections == 0) {
+    // No line detected - fast blink to indicate warning
+    if (noDetectionsCycles > 50 && noDetectionsCycles <= 100) {
+      ledSystem.setBlink(100);
+    } else if (noDetectionsCycles > 100) {
+      // Robot stopped - rapid blink to indicate error
+      ledSystem.setBlink(50);
+    }
+  } else if (!onStartEnd && !ledSystem.isAnimationActive()) {
+    // Normal line following - slow blink
+    ledSystem.setBlink(500);
+  }
+  
   printVar("ons", onStartEnd);
 
   float theta = pid.calculate(lr);
