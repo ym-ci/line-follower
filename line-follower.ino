@@ -20,7 +20,7 @@ const int pwmSpeed = 255;
 
 const int SENSOR_PINS[PINS] = {A1, A2, A3, A4, A5, A6}; // Updated array size to match PINS
 
-const int SENSOR_WEIGHTS[PINS] = {-12, -8, -1, 1, 8, 12}; // Updated array size to match PINS
+const int SENSOR_WEIGHTS[PINS] = {-50, -40, -10, 10, 40, 50}; // Updated array size to match PINS
 
 int sensorThresholds[PINS] = {0, 0, 0, 0, 0, 0}; // Updated array size to match PINS
 
@@ -37,7 +37,7 @@ int loopCount = 0;
 
 bool run = false;
 
-PIDController pid(0.005, 0, 0, MS_PER_TICK / 1000.0f);
+PIDController pid(0.04, 0, 0, MS_PER_TICK / 1000.0f);
 
 Servo lServo;
 Servo rServo;
@@ -209,7 +209,7 @@ void loop()
   // Print the sensor status string (assuming printVar can handle char*)
   printVar("Sensors", sensorStatus);
   float throttle = 0.3; // detections == 0 ? 0 : 1.0f;
-  float lr = detections == 0 ? previousDetection*10 : weight / detections;
+  float lr = detections == 0 ? previousDetection*2 : weight / detections;
   if (detections != 0)
   {
     noDetectionsCycles = 0;
@@ -229,7 +229,7 @@ void loop()
 
   bool onStartEnd = detections == PINS;
   if (onStartEnd || loopCount < 100) {
-    throttle = 1;
+    throttle = 1.0;
     lr = 0;
     loopCount++;
     
@@ -259,8 +259,8 @@ void loop()
   printVar("theta", theta);
 
 
-  float lPower = clamp(throttle + theta, -1.0f, 1.0f);
-  float rPower = clamp(throttle - theta, -1.0f, 1.0f);
+  float lPower = clamp(throttle - theta, -1.0f, 1.0f);
+  float rPower = clamp(throttle + theta, -1.0f, 1.0f);
 
   RobotForward(lPower * 40, rPower * 40);
   
